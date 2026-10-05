@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Execution Cost Stress Test</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: #0f1c2e;
+      --line: rgba(154, 176, 200, 0.18);
+      --text: #e8eef7;
+      --muted: #9ab0c8;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(90, 169, 255, 0.15), transparent 28%),
+        linear-gradient(180deg, #07111c 0%, #0b1727 100%);
+      color: var(--text);
+    }
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .card {
+      background: rgba(15, 28, 46, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 18px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .table th, .table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    .table th {
+      color: var(--muted);
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(7, 17, 28, 0.9);
+      border: 1px solid var(--line);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>Execution Cost Stress Test</h1>
+      <p>
+        Stress test sui candidati robusti sotto scenari progressivamente peggiori di spread e slippage.
+      </p>
+    </div>
+    <div class="card">
+      <h2>Scenario matrix</h2>
+      <table class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>candidate_label</th>
+      <th>scenario_name</th>
+      <th>spread_bps</th>
+      <th>slippage_bps</th>
+      <th>total_return_pct</th>
+      <th>max_drawdown_pct</th>
+      <th>median_monthly_pct</th>
+      <th>worst_month_pct</th>
+      <th>positive_month_pct</th>
+      <th>return_decay_pct</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BR_Robust</td>
+      <td>base_2_1</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>0.579238</td>
+      <td>-0.329933</td>
+      <td>0.029514</td>
+      <td>-0.167812</td>
+      <td>60.869565</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>BR_Robust</td>
+      <td>mild_4_2</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>0.009390</td>
+      <td>-0.381632</td>
+      <td>0.011483</td>
+      <td>-0.193260</td>
+      <td>56.521739</td>
+      <td>-0.569848</td>
+    </tr>
+    <tr>
+      <td>BR_Robust</td>
+      <td>medium_6_3</td>
+      <td>6.0</td>
+      <td>3.0</td>
+      <td>-0.557088</td>
+      <td>-0.582754</td>
+      <td>-0.000209</td>
+      <td>-0.233563</td>
+      <td>47.826087</td>
+      <td>-1.136327</td>
+    </tr>
+    <tr>
+      <td>BR_Robust</td>
+      <td>harsh_10_5</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>-1.680022</td>
+      <td>-1.680022</td>
+      <td>-0.042076</td>
+      <td>-0.315798</td>
+      <td>30.434783</td>
+      <td>-2.259261</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_HigherMedian</td>
+      <td>base_2_1</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>1.082976</td>
+      <td>-0.495314</td>
+      <td>0.028718</td>
+      <td>-0.449066</td>
+      <td>65.217391</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_HigherMedian</td>
+      <td>mild_4_2</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>0.546435</td>
+      <td>-0.537167</td>
+      <td>0.004336</td>
+      <td>-0.465278</td>
+      <td>65.217391</td>
+      <td>-0.536541</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_HigherMedian</td>
+      <td>medium_6_3</td>
+      <td>6.0</td>
+      <td>3.0</td>
+      <td>0.013036</td>
+      <td>-0.784970</td>
+      <td>-0.010635</td>
+      <td>-0.481478</td>
+      <td>39.130435</td>
+      <td>-1.069941</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_HigherMedian</td>
+      <td>harsh_10_5</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>-1.044418</td>
+      <td>-1.403111</td>
+      <td>-0.050061</td>
+      <td>-0.513842</td>
+      <td>30.434783</td>
+      <td>-2.127394</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_Stable</td>
+      <td>base_2_1</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>0.447775</td>
+      <td>-0.197031</td>
+      <td>0.002121</td>
+      <td>-0.073627</td>
+      <td>52.173913</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_Stable</td>
+      <td>mild_4_2</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>0.065164</td>
+      <td>-0.379877</td>
+      <td>0.000000</td>
+      <td>-0.098811</td>
+      <td>34.782609</td>
+      <td>-0.382611</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_Stable</td>
+      <td>medium_6_3</td>
+      <td>6.0</td>
+      <td>3.0</td>
+      <td>-0.315777</td>
+      <td>-0.592212</td>
+      <td>0.000000</td>
+      <td>-0.136955</td>
+      <td>34.782609</td>
+      <td>-0.763552</td>
+    </tr>
+    <tr>
+      <td>SR_Alt_Stable</td>
+      <td>harsh_10_5</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>-1.072679</td>
+      <td>-1.182136</td>
+      <td>-0.006884</td>
+      <td>-0.213135</td>
+      <td>17.391304</td>
+      <td>-1.520454</td>
+    </tr>
+    <tr>
+      <td>SR_Robust</td>
+      <td>base_2_1</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>1.743199</td>
+      <td>-0.240986</td>
+      <td>0.015445</td>
+      <td>-0.145706</td>
+      <td>60.869565</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>SR_Robust</td>
+      <td>mild_4_2</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>1.481235</td>
+      <td>-0.280780</td>
+      <td>0.001348</td>
+      <td>-0.152429</td>
+      <td>52.173913</td>
+      <td>-0.261964</td>
+    </tr>
+    <tr>
+      <td>SR_Robust</td>
+      <td>medium_6_3</td>
+      <td>6.0</td>
+      <td>3.0</td>
+      <td>1.220094</td>
+      <td>-0.320536</td>
+      <td>0.000000</td>
+      <td>-0.159147</td>
+      <td>47.826087</td>
+      <td>-0.523105</td>
+    </tr>
+    <tr>
+      <td>SR_Robust</td>
+      <td>harsh_10_5</td>
+      <td>10.0</td>
+      <td>5.0</td>
+      <td>0.700272</td>
+      <td>-0.407625</td>
+      <td>0.000000</td>
+      <td>-0.173383</td>
+      <td>39.130435</td>
+      <td>-1.042927</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+    <div class="card">
+      <h2>Return by scenario</h2>
+      <table class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>scenario_name</th>
+      <th>candidate_label</th>
+      <th>base_2_1</th>
+      <th>harsh_10_5</th>
+      <th>medium_6_3</th>
+      <th>mild_4_2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>BR_Robust</td>
+      <td>0.579238</td>
+      <td>-1.680022</td>
+      <td>-0.557088</td>
+      <td>0.009390</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Alt_HigherMedian</td>
+      <td>1.082976</td>
+      <td>-1.044418</td>
+      <td>0.013036</td>
+      <td>0.546435</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Alt_Stable</td>
+      <td>0.447775</td>
+      <td>-1.072679</td>
+      <td>-0.315777</td>
+      <td>0.065164</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Robust</td>
+      <td>1.743199</td>
+      <td>0.700272</td>
+      <td>1.220094</td>
+      <td>1.481235</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+    <div class="card">
+      <h2>Drawdown by scenario</h2>
+      <table class="dataframe table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>scenario_name</th>
+      <th>candidate_label</th>
+      <th>base_2_1</th>
+      <th>harsh_10_5</th>
+      <th>medium_6_3</th>
+      <th>mild_4_2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>BR_Robust</td>
+      <td>-0.329933</td>
+      <td>-1.680022</td>
+      <td>-0.582754</td>
+      <td>-0.381632</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Alt_HigherMedian</td>
+      <td>-0.495314</td>
+      <td>-1.403111</td>
+      <td>-0.784970</td>
+      <td>-0.537167</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Alt_Stable</td>
+      <td>-0.197031</td>
+      <td>-1.182136</td>
+      <td>-0.592212</td>
+      <td>-0.379877</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>SR_Robust</td>
+      <td>-0.240986</td>
+      <td>-0.407625</td>
+      <td>-0.320536</td>
+      <td>-0.280780</td>
+    </tr>
+  </tbody>
+</table>
+    </div>
+    <div class="card">
+      <h2>Summary</h2>
+      <pre>{
+  &quot;scenarios&quot;: [
+    {
+      &quot;name&quot;: &quot;base_2_1&quot;,
+      &quot;spread_bps&quot;: 2.0,
+      &quot;slippage_bps&quot;: 1.0
+    },
+    {
+      &quot;name&quot;: &quot;mild_4_2&quot;,
+      &quot;spread_bps&quot;: 4.0,
+      &quot;slippage_bps&quot;: 2.0
+    },
+    {
+      &quot;name&quot;: &quot;medium_6_3&quot;,
+      &quot;spread_bps&quot;: 6.0,
+      &quot;slippage_bps&quot;: 3.0
+    },
+    {
+      &quot;name&quot;: &quot;harsh_10_5&quot;,
+      &quot;spread_bps&quot;: 10.0,
+      &quot;slippage_bps&quot;: 5.0
+    }
+  ],
+  &quot;candidates&quot;: [
+    {
+      &quot;label&quot;: &quot;SR_Robust&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;model_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_55\\stage2_tol0.003_lb5.zip&quot;,
+      &quot;env_config_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_55\\stage2_tol0.003_lb5_env_config.json&quot;,
+      &quot;reference_return_pct&quot;: 1.7431990713798222
+    },
+    {
+      &quot;label&quot;: &quot;SR_Alt_Stable&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;model_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_55\\stage2_tol0.002_lb7.zip&quot;,
+      &quot;env_config_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_55\\stage2_tol0.002_lb7_env_config.json&quot;,
+      &quot;reference_return_pct&quot;: 0.4477748046855959
+    },
+    {
+      &quot;label&quot;: &quot;BR_Robust&quot;,
+      &quot;family&quot;: &quot;BR&quot;,
+      &quot;model_path&quot;: &quot;models\\multi_seed_runs\\seed_22\\stage2_72_96_144_q65.zip&quot;,
+      &quot;env_config_path&quot;: &quot;models\\multi_seed_runs\\seed_22\\stage2_72_96_144_q65_env_config.json&quot;,
+      &quot;reference_return_pct&quot;: 0.5792384557703008
+    },
+    {
+      &quot;label&quot;: &quot;SR_Alt_HigherMedian&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;model_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_22\\stage2_tol0.001_lb3.zip&quot;,
+      &quot;env_config_path&quot;: &quot;models\\multi_seed_runs_sr\\seed_22\\stage2_tol0.001_lb3_env_config.json&quot;,
+      &quot;reference_return_pct&quot;: 1.0829764430577598
+    }
+  ],
+  &quot;best_per_scenario&quot;: [
+    {
+      &quot;candidate_label&quot;: &quot;SR_Robust&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;scenario_name&quot;: &quot;base_2_1&quot;,
+      &quot;spread_bps&quot;: 2.0,
+      &quot;slippage_bps&quot;: 1.0,
+      &quot;reference_return_pct&quot;: 1.7431990713798222,
+      &quot;total_return_pct&quot;: 1.743199,
+      &quot;max_drawdown_pct&quot;: -0.240986,
+      &quot;pct_profitable&quot;: 60.0,
+      &quot;total_trades&quot;: 95,
+      &quot;final_capital&quot;: 10174.319907,
+      &quot;return_decay_pct&quot;: 0.0,
+      &quot;months&quot;: 23,
+      &quot;avg_monthly_pct&quot;: 0.075059,
+      &quot;median_monthly_pct&quot;: 0.015445,
+      &quot;worst_month_pct&quot;: -0.145706,
+      &quot;best_month_pct&quot;: 0.603454,
+      &quot;positive_month_pct&quot;: 60.869565
+    },
+    {
+      &quot;candidate_label&quot;: &quot;SR_Robust&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;scenario_name&quot;: &quot;harsh_10_5&quot;,
+      &quot;spread_bps&quot;: 10.0,
+      &quot;slippage_bps&quot;: 5.0,
+      &quot;reference_return_pct&quot;: 1.7431990713798222,
+      &quot;total_return_pct&quot;: 0.700272,
+      &quot;max_drawdown_pct&quot;: -0.407625,
+      &quot;pct_profitable&quot;: 60.0,
+      &quot;total_trades&quot;: 95,
+      &quot;final_capital&quot;: 10070.027169,
+      &quot;return_decay_pct&quot;: -1.042927,
+      &quot;months&quot;: 23,
+      &quot;avg_monthly_pct&quot;: 0.033557,
+      &quot;median_monthly_pct&quot;: 0.0,
+      &quot;worst_month_pct&quot;: -0.173383,
+      &quot;best_month_pct&quot;: 0.592513,
+      &quot;positive_month_pct&quot;: 39.130435
+    },
+    {
+      &quot;candidate_label&quot;: &quot;SR_Robust&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;scenario_name&quot;: &quot;medium_6_3&quot;,
+      &quot;spread_bps&quot;: 6.0,
+      &quot;slippage_bps&quot;: 3.0,
+      &quot;reference_return_pct&quot;: 1.7431990713798222,
+      &quot;total_return_pct&quot;: 1.220094,
+      &quot;max_drawdown_pct&quot;: -0.320536,
+      &quot;pct_profitable&quot;: 60.0,
+      &quot;total_trades&quot;: 95,
+      &quot;final_capital&quot;: 10122.009407,
+      &quot;return_decay_pct&quot;: -0.523105,
+      &quot;months&quot;: 23,
+      &quot;avg_monthly_pct&quot;: 0.054293,
+      &quot;median_monthly_pct&quot;: 0.0,
+      &quot;worst_month_pct&quot;: -0.159147,
+      &quot;best_month_pct&quot;: 0.59798,
+      &quot;positive_month_pct&quot;: 47.826087
+    },
+    {
+      &quot;candidate_label&quot;: &quot;SR_Robust&quot;,
+      &quot;family&quot;: &quot;SR&quot;,
+      &quot;scenario_name&quot;: &quot;mild_4_2&quot;,
+      &quot;spread_bps&quot;: 4.0,
+      &quot;slippage_bps&quot;: 2.0,
+      &quot;reference_return_pct&quot;: 1.7431990713798222,
+      &quot;total_return_pct&quot;: 1.481235,
+      &quot;max_drawdown_pct&quot;: -0.28078,
+      &quot;pct_profitable&quot;: 60.0,
+      &quot;total_trades&quot;: 95,
+      &quot;final_capital&quot;: 10148.123474,
+      &quot;return_decay_pct&quot;: -0.261964,
+      &quot;months&quot;: 23,
+      &quot;avg_monthly_pct&quot;: 0.064672,
+      &quot;median_monthly_pct&quot;: 0.001348,
+      &quot;worst_month_pct&quot;: -0.152429,
+      &quot;best_month_pct&quot;: 0.600716,
+      &quot;positive_month_pct&quot;: 52.173913
+    }
+  ],
+  &quot;baseline_recommendation&quot;: {
+    &quot;most_resilient_by_harsh_case&quot;: [
+      {
+        &quot;candidate_label&quot;: &quot;SR_Robust&quot;,
+        &quot;family&quot;: &quot;SR&quot;,
+        &quot;scenario_name&quot;: &quot;harsh_10_5&quot;,
+        &quot;spread_bps&quot;: 10.0,
+        &quot;slippage_bps&quot;: 5.0,
+        &quot;reference_return_pct&quot;: 1.7431990713798222,
+        &quot;total_return_pct&quot;: 0.700272,
+        &quot;max_drawdown_pct&quot;: -0.407625,
+        &quot;pct_profitable&quot;: 60.0,
+        &quot;total_trades&quot;: 95,
+        &quot;final_capital&quot;: 10070.027169,
+        &quot;return_decay_pct&quot;: -1.042927,
+        &quot;months&quot;: 23,
+        &quot;avg_monthly_pct&quot;: 0.033557,
+        &quot;median_monthly_pct&quot;: 0.0,
+        &quot;worst_month_pct&quot;: -0.173383,
+        &quot;best_month_pct&quot;: 0.592513,
+        &quot;positive_month_pct&quot;: 39.130435
+      }
+    ]
+  }
+}</pre>
+    </div>
+  </div>
+</body>
+</html>

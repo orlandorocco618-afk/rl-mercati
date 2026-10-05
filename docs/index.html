@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rl-mercati — results</title>
+<style>
+:root{--bg:#0f1115;--fg:#e8e8ea;--mut:#9aa0a6;--card:#181b22;--acc:#f5b301}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,Segoe UI,Arial,sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 16px}
+h1{margin:0 0 6px;font-size:30px} p{color:var(--mut)}
+a.card{display:block;background:var(--card);border:1px solid #262a33;border-radius:12px;padding:18px 20px;margin:14px 0;color:var(--fg);text-decoration:none}
+a.card:hover{border-color:var(--acc)} a.card b{color:var(--acc)}
+.warn{border-left:3px solid var(--acc);padding:8px 14px;background:var(--card);border-radius:6px}
+</style></head><body><main>
+<h1>rl-mercati</h1>
+<p>Reinforcement learning (PPO) trading research on gold, XAUUSD hourly candles.
+These are the interactive reports produced by the backtest pipeline.
+Source code: <a style="color:var(--acc)" href="../">GitHub repo</a>.</p>
+<p class="warn">Research project, not financial advice. The interesting part is the validation: out-of-sample tests, multiple seeds and cost stress tests.</p>
+<a class="card" href="br_vs_sr.html"><b>BR vs SR — out-of-sample equity curves →</b><br>Interactive comparison of the two best systems (base regime vs support/resistance sizing) on data the agents never saw.</a>
+<a class="card" href="cost_stress.html"><b>Execution-cost stress test →</b><br>What happens to the strategy with higher spread, slippage and commissions.</a>
+<a class="card" href="duration_grid.html"><b>Duration grid, multi-seed →</b><br>How results change with holding-time limits across several random seeds.</a>
+</main></body></html>

@@ -1,0 +1,19 @@
+# environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.vscode/
+*.zip
+
+# heavy / generated outputs (not needed to run the code)
+logs_sr/
+logs_sr_bias_free/
+models/
+best_models/
+training_sr.log
+*.log
+data/*.csv
+backtest/data/
+backtest/plots*/
+!docs/

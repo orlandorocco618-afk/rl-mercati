@@ -36,7 +36,7 @@ Files with the `_robust.py` suffix implement full error handling:
 
 ### Step 1: Install the Dependencies
 ```powershell
-cd c:\Users\Rocco\Desktop\rl-mercati
+cd rl-mercati
 pip install -r requirements.txt
 ```
 
@@ -68,7 +68,7 @@ If it fails, you'll see:
 ============================================================
 Type: FileNotFoundError
 Message: [CRITICAL ERROR] CSV file not found: data/xauusd_h1_clean.csv
-   Current folder: c:\Users\Rocco\Desktop\rl-mercati
+   Current folder: rl-mercati
    Files in data/: ['xauusd_h1_clean.csv', 'xauusd_d1_clean.csv']
 ...
 ```
@@ -95,7 +95,7 @@ python backtest/backtest_bt_robust.py
 ### Example 1: Missing File
 ```
 ❌ [CRITICAL ERROR] CSV file not found: data/xauusd_d1_clean.csv
-   Current folder: c:\Users\Rocco\Desktop\rl-mercati
+   Current folder: rl-mercati
    Files in data/: ['xauusd_h1_clean.csv']
 ```
 **Fix:** the file `xauusd_d1_clean.csv` doesn't exist in `data/`. Copy it there.

@@ -4,7 +4,7 @@
 
 ### 1. Install the Dependencies
 ```powershell
-cd c:\Users\Rocco\Desktop\rl-mercati
+cd rl-mercati
 pip install -r requirements.txt
 pip install statsmodels==0.13.5
 ```
@@ -101,7 +101,7 @@ python backtest/backtest_bt.py
 ### ❌ "CSV file not found"
 ```
 Fix: 
-  cd c:\Users\Rocco\Desktop\rl-mercati\data
+  cd rl-mercati\data
   ls
   # Must show xauusd_h1_clean.csv and xauusd_d1_clean.csv
 ```
